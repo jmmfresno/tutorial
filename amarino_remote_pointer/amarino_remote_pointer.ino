@@ -23,6 +23,8 @@ int redPin=9;
 int greenPin=10;
 int bluePin=11;
 
+char* myResult;
+long myResultLength = 0;
 
 void error(uint8_t flag, uint8_t values){
   Serial.print("ERROR: ");
@@ -41,7 +43,7 @@ void setup()
   // - match the second parameter ('A', 'B', 'a', etc...) with the flag on your Android application
   meetAndroid.registerFunction(orientation, 'A');  
   meetAndroid.registerFunction(proximate, 'B');  
-  meetAndroid.registerFunction(text, 'C'); 
+  meetAndroid.registerFunction(text, 'D'); 
   meetAndroid.registerFunction(what_ever_the_name_of_a_function, 'C');  
 
 
@@ -57,6 +59,11 @@ void setup()
 void loop()
 {
   meetAndroid.receive(); // you need to keep this in your loop() to receive events
+  
+  if (myResultLength != 0) {
+    // do something
+  }
+  
 }
 
 
@@ -110,12 +117,51 @@ void what_ever_the_name_of_a_function(byte flag, byte numOfValues){
 
 }
 
-void text(byte flag, byte numOfValues){
-  int length = meetAndroid.stringLength();
-  char output[length];
-  meetAndroid.getString(output);
-  if (output[0]== 'A') digitalWrite(13,HIGH);
+void text(byte flag, byte numOfValues)
+{
+  // free memory if any was allocated earlier
+  if (myResult != 0) {
+    free(myResult);
+    myResultLength = 0;
+  }
+  
+  // get length
+  myResultLength = meetAndroid.stringLength();
+  
+  if (myResultLength <= 0) return;
+    
+  // allocate memory of type char
+  myResult = (char*)malloc(myResultLength * sizeof(char));
+  
+  // test if memory allocation was successful
+  if (myResult == 0) return;
+  
+  // set memory to zero
+  memset(myResult, 0, myResultLength);
+  
+  /*
+  // e.g. copy bytes in
+   char srcAddress[myResultLength];
+   fill zour srcAddress array with stuff
+   memcpy(srcAddress, myResult, length);
+  
+  char one[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+  char two[10];
+  
+  for (int i=0; i<10; i++){
+    two[i] = one[i];
+  }
+  
+  //　or
+  memcpy(two, one, 10);
+  */
+  
+  //char output[length];
+  meetAndroid.getString(myResult);
+  if (myResult[0]== 'A') digitalWrite(13,HIGH);
   else digitalWrite(13,LOW);
+  
+  
 }
 
 

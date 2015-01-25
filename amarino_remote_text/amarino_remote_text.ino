@@ -23,7 +23,6 @@ int redPin=9;
 int greenPin=10;
 int bluePin=11;
 
-
 void error(uint8_t flag, uint8_t values){
   Serial.print("ERROR: ");
   Serial.print(flag);
@@ -42,7 +41,7 @@ void setup()
   meetAndroid.registerFunction(orientation, 'A');  
   meetAndroid.registerFunction(proximate, 'B');  
   meetAndroid.registerFunction(text, 'C'); 
-  meetAndroid.registerFunction(what_ever_the_name_of_a_function, 'C');  
+  meetAndroid.registerFunction(what_ever_the_name_of_a_function, 'D');  
 
 
 // set pinmode 
@@ -110,12 +109,34 @@ void what_ever_the_name_of_a_function(byte flag, byte numOfValues){
 
 }
 
-void text(byte flag, byte numOfValues){
+void text(byte flag, byte numOfValues)
+{  
+  // get the lentgh of the string
   int length = meetAndroid.stringLength();
-  char output[length];
-  meetAndroid.getString(output);
-  if (output[0]== 'A') digitalWrite(13,HIGH);
-  else digitalWrite(13,LOW);
+  // create a new char array with the length of the string
+  char comingInText[length];
+  
+  // fill in the char with input from Android
+  meetAndroid.getString(comingInText);
+  
+  if (comingInText[0]== 'a') {
+    // call certain function
+    turnLightOn();
+  }
+  if (comingInText[0]== 'b') {
+    // call certain function
+    turnLightOff();
+  }
+}
+
+// example function
+void turnLightOn(){
+  digitalWrite(13,HIGH);
+}
+
+// example function
+void turnLightOff(){
+  digitalWrite(13,LOW);
 }
 
 
